@@ -1,7 +1,7 @@
 # albumCQL
 Simple Web API to do CRUD operations using Go and GoCQL (Cassandra DB)
 
-PRE-REQUESITES: (PLEASE CLICK ON "RAW" VERSION TO SEE CLEARLY.)
+PRE-REQUISITES: (PLEASE CLICK ON "RAW" VERSION TO SEE CLEARLY.)
 ===============
 1. Implement Cassandra DB. See this link on how to install Cassandra DB on your Windows machine. (https://www.youtube.com/watch?v=EEXtVn3zAqc)
 
