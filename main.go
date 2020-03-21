@@ -66,7 +66,7 @@ func showAlbum(w http.ResponseWriter, r *http.Request){
 func addAlbum(w http.ResponseWriter, r *http.Request){
 	w.Header().Set("Content-Type","application/json")
 	param := mux.Vars(r)
-	if err:= Session.Query(`INSERT INTO album4 (albname) VALUES (?);`,param["album"]).Exec();err!=nil {
+	if err:= Session.Query(`INSERT INTO album4 (albname) VALUES (?) IF NOT EXISTS;`,param["album"]).Exec();err!=nil {
 		fmt.Println(err)
 	} else {
 		fmt.Fprintf(w, "New album added")
