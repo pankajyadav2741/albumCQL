@@ -25,8 +25,7 @@ var Session *gocql.Session
 func init() {
 	var err error
 	cluster := gocql.NewCluster("127.0.0.1")
-	//cluster.Keyspace = "albumspace"
-	cluster.Keyspace = "test"
+	cluster.Keyspace = "albumspace"
 	Session, err = cluster.CreateSession()
 	if err != nil {
 		panic(err)
@@ -39,19 +38,16 @@ func init() {
 	//TODO: Create TYPE
 	//CREATE TYPE IF NOT EXISTS test.image3 ( imgname text);
 
-
 	//TODO: Create Table
 	//CREATE TABLE IF NOT EXISTS test.album3 (albname text PRIMARY KEY, images list<FROZEN <image3>>);
 
 }
 
-//OK
 //Show all albums
 func showAlbum(w http.ResponseWriter, r *http.Request){
 	fmt.Fprintf(w, "Displaying album names:\n")
 	//CQL Operation
-	//Find all albums
-	iter:=Session.Query("SELECT albname FROM album4;").Iter()
+	iter:=Session.Query("SELECT albname FROM albumtable;").Iter()
 	var data string
 	for iter.Scan(&data){
 		json.NewEncoder(w).Encode(data)
@@ -61,37 +57,34 @@ func showAlbum(w http.ResponseWriter, r *http.Request){
 	}
 }
 
-//OK
 //Create a new album
 func addAlbum(w http.ResponseWriter, r *http.Request){
 	w.Header().Set("Content-Type","application/json")
 	param := mux.Vars(r)
-	if err:= Session.Query(`INSERT INTO album4 (albname) VALUES (?) IF NOT EXISTS;`,param["album"]).Exec();err!=nil {
+	if err:= Session.Query(`INSERT INTO albumtable (albname) VALUES (?) IF NOT EXISTS;`,param["album"]).Exec();err!=nil {
 		fmt.Println(err)
 	} else {
 		fmt.Fprintf(w, "New album added")
 	}
 }
 
-//OK
 //Delete an existing album
 func deleteAlbum(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type","application/json")
 	param := mux.Vars(r)
 	//CQL Operation
-	if err:= Session.Query(`DELETE FROM album4 WHERE albname=? IF EXISTS;`,param["album"]).Exec();err!=nil {
+	if err:= Session.Query(`DELETE FROM albumtable WHERE albname=? IF EXISTS;`,param["album"]).Exec();err!=nil {
 		fmt.Println(err)
 	} else {
 		fmt.Fprintf(w, "Album deleted")
 	}
 }
 
-//OK
 //Show all images in an album
 func showImagesInAlbum(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type","application/json")
 	param := mux.Vars(r)
-	iter:=Session.Query("SELECT imagelist FROM album4 WHERE albname=?;",param["album"]).Iter()
+	iter:=Session.Query("SELECT imagelist FROM albumtable WHERE albname=?;",param["album"]).Iter()
 	var data []string
 	for iter.Scan(&data){
 		json.NewEncoder(w).Encode(data)
@@ -101,16 +94,15 @@ func showImagesInAlbum(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//OK
 //Show a particular image inside an album
 func showImage(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type","application/json")
 	param := mux.Vars(r)
-	iter:=Session.Query("SELECT imagelist FROM album4 WHERE albname='?';",param["image"]).Iter()
+	iter:=Session.Query("SELECT imagelist FROM albumtable WHERE albname='?';",param["image"]).Iter()
 	var data []string
 	for iter.Scan(&data){
 		for _, img := range data {
-			if img == "img2" {
+			if img == param["image"] {
 				json.NewEncoder(w).Encode(img)
 			}
 		}
@@ -120,28 +112,28 @@ func showImage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//TODO
 //Create an image in an album
 func addImage(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type","application/json")
 	param := mux.Vars(r)
 	//CQL Operation
-	//UPDATE album3 SET images=images+[('img5')] WHERE albname='alb1';
-	if err:= Session.Query(`UPDATE album4 SET imagelist=imagelist+? WHERE albname=?;`,string([]byte(param["image"])),param["album"]).Exec();err!=nil {
-	//if err:= Session.Query(`UPDATE album4 SET imagelist=imagelist+? WHERE albname=?;`,[]rune(param["image"]),param["album"]).Exec();err!=nil {
+	if err:= Session.Query(`UPDATE albumtable SET imagelist=imagelist+['?'] WHERE albname=?;`,param["image"],param["album"]).Exec();err!=nil {
 		fmt.Println(err)
 	} else {
 		fmt.Fprintf(w, "New image added")
 	}
 }
 
-//TODO
 //Delete an image in an album
 func deleteImage(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type","application/json")
-	//param := mux.Vars(r)
+	param := mux.Vars(r)
 	//CQL Operation
-	//UPDATE album3 SET images=images-[('img6')] WHERE albname='alb1';
+	if err:= Session.Query(`UPDATE albumtable SET imagelist=imagelist-['?'] WHERE albname=?;`,param["image"],param["album"]).Exec();err!=nil {
+		fmt.Println(err)
+	} else {
+		fmt.Fprintf(w, "New image added")
+	}
 }
 
 func main() {
