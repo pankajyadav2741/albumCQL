@@ -9,16 +9,16 @@ PRE-REQUISITES: (PLEASE CLICK ON "RAW" VERSION TO SEE CLEARLY.)
 
 3. Make sure Cassandra DB is running on your windows machine as described in Step 1. Check it via "cqlsh".
 
-4. Open "cqlsh" and create keyspace as mentioned in your golang program. In our case, we have "albumdb" as keyspace name in our main.go file.
+4. Open "cqlsh" and create keyspace as mentioned in your golang program. In our case, we have "albumspace" as keyspace name in our main.go file.
 
 Execute below:
 --------------
 cqlsh> DESCRIBE keyspaces
 system_auth  system_distributed  system_traces
 system_schema  system 
-cqlsh> CREATE KEYSPACE albumdb WITH replication = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
+cqlsh> CREATE KEYSPACE albumspace WITH replication = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
 cqlsh> DESCRIBE keyspaces
-albumdb        system_auth  system_distributed  system_traces
+albumspace        system_auth  system_distributed  system_traces
 system_schema  system 
 cqlsh> 
 
@@ -26,18 +26,13 @@ cqlsh>
 
 Execute below: 
 --------------
-cqlsh> USE albumdb;
-cqlsh:albumdb> CREATE TABLE albumtable(
-        ... albumname text PRIMARY KEY,
-        ... image1 text,
-        ... image2 text,
-        ... image3 text,
-        ... image4 text,
-        ... image5 text,);
-cqlsh:albumdb> SELECT * FROM albumtable;
-albumname | image1 | image2 | image3 | image4 | image5
------------+--------+--------+--------+--------+--------
+cqlsh> USE albumspace;
+cqlsh:albumspace> CREATE TABLE albumtable (albname TEXT PRIMARY KEY, imagelist LIST<TEXT>);
+cqlsh:albumspace> SELECT * FROM albumtable;
 
-cqlsh:albumdb> 
+ albname | imagelist
+---------+-----------
 
+(0 rows)
+cqlsh:albumspace> 
 6. Execute main.go
